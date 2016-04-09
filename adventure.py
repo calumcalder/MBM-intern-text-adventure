@@ -14,6 +14,7 @@ class Room:
         """
         self.description = description
         self.items = {}
+        self.objects = {}
         self.north = None
         self.south = None
         self.east = None
@@ -38,6 +39,15 @@ class Room:
             item: The item to be added.
         """
         self.items[item.name] = item
+    
+    def add_object(self, obj):
+        """
+        Adds an object to the room.
+        
+        Parameters:
+            obj: the object to be added.
+        """
+        self.objects[obj.name] = obj
     
     def join(self, joined_room, direction):
         """
@@ -66,13 +76,14 @@ class Object:
     Represents and object in the adventure. Can be interacted with, eg. examined, but not picked up.
     """
     
-    def __init__(self, description):
+    def __init__(self, name, description):
         """
         Constructor for Object.
         
         Parameters:
             description: A description of the object
         """
+        self.name = name
         self.description = description
     
     def describe(self):
@@ -231,6 +242,9 @@ class Game:
         elif param in self.player.current_room.items:
             print("You look at the", param + ".")
             self.player.current_room.items[param].describe()
+        elif param in self.player.current_room.objects:
+            print("You look at the", param + ".")
+            self.player.current_room.objects[param].describe()
         elif param in ["room", "area", ""]:
             self.player.current_room.describe()
         else:
@@ -323,12 +337,14 @@ if __name__ == "__main__":
     ))
     
     desk_room = Room(description = "You come to another white room. There's an empty desk filling up one wall.")
+    desk_room.add_object(Object(name = "desk", description = "A sturdy wooden desk, with some plug sockets next to it. This could come in handy later."))
     start_room.join(desk_room, "north")
     
     hallway = Room(description = "You enter a narrow hallway, with a door back to the first room to the north, a door at the end of the hallway to the south, and doors on either wall to the east and west.")
     start_room.join(hallway, "south")
     
     outside = Room(description = "You've come outside, and are surrounded by tall brown cliffs. You feel sand under your feet, and on the south wall you see a sky blue lagoon, with something glistening below the gentle waves. There's a door back inside to your west.")
+    outside.add_object(Object(name = "lagoon", description = "A deep blue lagoon. I could probably swim to the bottom and back."))
     hallway.join(outside, "east")
     
     lagoon = Room(description = "You dive in to the lagoon. Thankfully, you hold the world record for holding your breath - you can hang out here for a while.\nThe exit to the lagoon is to the north.")
