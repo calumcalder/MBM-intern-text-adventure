@@ -1,3 +1,5 @@
+DEBUG = False
+
 class Room:
     """
     A room in the adventure. Contains items, and connects to other rooms.
@@ -150,7 +152,61 @@ class Item:
         """
         print(self.description)
 
-if __name__ == "__main__":
+class Game:
+    """
+    Singleton class for encapsulating game loop and related functions.
+    """
+    
+    def __init__(self, initial_room, check_success):
+        """
+        Contructor for Game.
+        
+        Parameters:
+            initial_room: The inital room of the map. Should be the start room of a pre-constructed board.
+            check_success: A function to check if the game has been won.
+        """
+        self.player = Player(initial_room)
+        self.check_success = check_success
+    
+    def read_command(self):
+        """
+        Reads in a command and passes it off to the appropriate handler
+        """
+        command = input(">")
+        command, param, *extra= command.lower().split(" ")
+        
+        if command in ["go", "move"]:
+            self.player.go(direction = param)
+        if command in ["get", "collect", "grab"]:
+            self.player.get(item_name = param)
+        if command in ["describe", "examine", "inspect"]:
+            self.handle_describe(param)
+        if command in ["inventory", "bag"]:
+            self.player.inventory()
+    
+    def handle_describe(self, param):
+        """
+        Handles a call to describe an object.
+        
+        Parameters:
+            param: The parameter passed in by the player from the command line.
+        """
+        if param in self.player.items:
+            print("You look at the", param + ".")
+            self.player.items[param].describe()
+        elif param in self.player.current_room.items:
+            print("You look at the", param + ".")
+            self.player.current_room.items[param].describe()
+        elif param == "room":
+            self.player.current_room.describe()
+        else:
+            print("I can't see anything like that.")
+    
+    def read_commands_forever(self):
+        while not self.check_success():
+            self.read_command()
+
+if DEBUG == True:
     print("---Basic room description---")
     room = Room(description = "Hello world")
     room.describe()
@@ -206,3 +262,14 @@ if __name__ == "__main__":
     print("---Success and inventory---")
     player.get("item")
     player.inventory()
+    print("---Pick up twice---")
+    player.get("item")
+    print("---Room inventory check---")
+    room.describe()
+
+if __name__ == "__main__":
+    start_room = Room(description = "You awake in a white room with a door to the north and a door to the south. There is a small note pinned to the wall.")
+    start_room.add_item(Item(name = "note", description = "A small note. It says:\nCongratulations, you're on to stage 2 of the Made by Many Technologist Internship application process.\nWe'd like you to make a text adventure game - get coding!\n\nYou think to yourself, 'I could do with a computer to make this on.'"))
+    
+    game = Game(start_room, lambda: False)
+    game.read_commands_forever()
