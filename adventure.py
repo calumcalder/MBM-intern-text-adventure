@@ -40,6 +40,10 @@ class Room:
     def join(self, joined_room, direction):
         """
         Joins one room to another, according to the direction given.
+        
+        Parameters:
+            joined_room: The room that this room should be joined to.
+            direction: The position of the joined room relative to this room.
         """
         assert direction in ["north", "south", "east", "west"], "Direction should be one of: north, south, east, west."
         if direction == "north":
@@ -73,6 +77,9 @@ class Player:
     def go(self, direction):
         """
         Moves a player from their current room to another according to the given direction.
+        
+        Parameters:
+            direction: The direction in which the player should move, should be one of north, south, east, west.
         """
         if direction not in ["north", "south", "east", "west"]:
             print("I don't know how to go", str(direction) + ".")
@@ -138,12 +145,18 @@ class Item:
         self.name = name
     
     def describe(self):
+        """
+        Prints a description of the item to the console.
+        """
         print(self.description)
 
 if __name__ == "__main__":
+    print("---Basic room description---")
     room = Room(description = "Hello world")
     room.describe()
     
+    print()
+    print("---Addition of rooms---")
     north_room = Room(description = "North")
     south_room = Room(description = "South")
     east_room = Room(description = "East")
@@ -153,27 +166,43 @@ if __name__ == "__main__":
     room.join(south_room, "south")
     room.join(east_room, "east")
     room.join(west_room, "west")
+    print("---Join on invalid direction---")
     try:
         room.join(north_room, "invalid direction")
     except AssertionError as e:
-        print("Caught AssertionError")
+        print("Caught AssertionError, invalid direction handled.")
     
+    print("---Decription of rooms in NSEW.---")
     room.north.describe()
     room.south.describe()
     room.east.describe()
     room.west.describe()
     
+    print()
+    print("---Player tests---")
     player = Player(initial_room = room)
+    print("---Movement---")
     player.go("north")
     player.go("east")
     player.go("south")
     
+    print()
+    print("---Item tests---")
+    print("---Creation---")
     item = Item(name = "item", description = "A basic item.")
     item.describe()
     print(item.name)
     
+    print("---Adding to room, room descriptions---")
     room.add_item(item)
     room.describe()
+    print("---Player pick up---")
+    print("---Player in wrong room---")
+    player.go("south")
+    player.get("item")
+    player.go("north")
+    print("---Wrong item_name---")
     player.get("invalid item")
+    print("---Success and inventory---")
     player.get("item")
     player.inventory()
