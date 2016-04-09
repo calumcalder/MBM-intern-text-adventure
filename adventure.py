@@ -52,6 +52,10 @@ if __name__ == "__main__":
     room.join(south_room, "south")
     room.join(east_room, "east")
     room.join(west_room, "west")
+    try:
+        room.join(north_room, "invalid direction")
+    except AssertionError as e:
+        print("Caught AssertionError")
     
     room.north.describe()
     room.south.describe()
