@@ -173,7 +173,7 @@ class Game:
     
     def read_command(self):
         """
-        Reads in a command and passes it off to the appropriate handler
+        Reads in a command and passes it off to the appropriate handler.
         """
         command = input(">")
         params = []
@@ -226,6 +226,8 @@ class Game:
         print("get <item> - Collects an item from the room you're in.")
         print("examine <object> - Examines an item or the room.")
         print("inventory - Shows you your inventory.")
+        print()
+        
         print(self.start_message)
         while not self.check_success(self):
             self.read_command()
