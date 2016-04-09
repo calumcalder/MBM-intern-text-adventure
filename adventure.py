@@ -2,6 +2,7 @@ class Room:
     """
     A room in the adventure. Contains items, and connects to other rooms.
     """
+    
     def __init__(self, description):
         """
         Constructor of Room.
@@ -39,6 +40,31 @@ class Room:
             self.west = joined_room
             joined_room.east = self
 
+class Player:
+    """
+    Represents the player in the adventure. Maintains an inventory and current position, as well as providing methods for world interaction.
+    """
+    
+    def __init__(self, initial_room):
+        self.current_room = initial_room
+    
+    def go(self, direction):
+        if direction not in ["north", "south", "east", "west"]:
+            print("I don't know how to go", direction)
+            return
+        
+        if direction == "north" and self.current_room.north is not None:
+            self.current_room = self.current_room.north
+        if direction == "south" and self.current_room.south is not None:
+            self.current_room = self.current_room.south
+        if direction == "east" and self.current_room.east is not None:
+            self.current_room = self.current_room.east
+        if direction == "west" and self.current_room.west is not None:
+            self.current_room = self.current_room.west
+        
+        print("You go", direction)
+        self.current_room.describe()
+
 if __name__ == "__main__":
     room = Room(description = "Hello world")
     room.describe()
@@ -61,3 +87,6 @@ if __name__ == "__main__":
     room.south.describe()
     room.east.describe()
     room.west.describe()
+    
+    player = Player(initial_room = room)
+    player.go("north")
