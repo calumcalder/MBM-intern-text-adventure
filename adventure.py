@@ -25,6 +25,9 @@ class Room:
         Prints the description of the room to the console.
         """
         print(self.description)
+        for item in self.items.values():
+            if item.in_room_description:
+                print(item.in_room_description)
         
         if self.items:
             print("You can see the following items:")
@@ -147,18 +150,20 @@ class Item:
     Represents an item in the adventure. Provides functions for interaction with the item.
     """
     
-    def __init__(self, name, description, get_text = None, can_pick_up = True):
+    def __init__(self, name, description, in_room_description = None, get_text = None, can_pick_up = True):
         """
         Constructor for Item.
         
         Parameters:
             name: A string containing the name of the item.
-            get_text: A string to be printed when the item is collected.
             description: A string describing the item.
+            in_room_description: An optional string describing the object when it is in a room.
+            get_text: A string to be printed when the item is collected.
             can_pick_up: A bool to say whether the Item can be picked up or not.
         """
-        self.description = description
         self.name = name
+        self.description = description
+        self.in_room_description = in_room_description
         self.get_text = get_text or "You pick up the " + name + "."
         self.can_pick_up = can_pick_up
     
@@ -314,30 +319,54 @@ if __name__ == "__main__":
     start_room.add_item(Item(
         name = "note", 
         description = "A small note. It says:\nCongratulations, you're on to stage 2 of the Made by Many Technologist Internship application process.\nWe'd like you to make a text adventure game - get coding!\n\nYou think to yourself, 'I could do with a computer to make this on.'",
+        in_room_description = "A small note is pinned to the wall.",
         get_text = "You pull the note off the wall that it's pinned to."
     ))
     
     desk_room = Room(description = "You come to another white room. There's an empty desk filling up one wall.")
-    desk_room.add_item(Item(name = "desk", description = "A sturdy wooden desk, with some plug sockets next to it. This could come in handy later.", can_pick_up = False))
+    desk_room.add_item(Item(
+        name = "desk",
+        description = "A sturdy wooden desk, with some plug sockets next to it. This could come in handy later.",
+        can_pick_up = False
+    ))
     start_room.join(desk_room, "north")
     
     hallway = Room(description = "You enter a narrow hallway, with a door back to the first room to the north, a door at the end of the hallway to the south, and doors on either wall to the east and west.")
     start_room.join(hallway, "south")
     
     outside = Room(description = "You've come outside, and are surrounded by tall brown cliffs. You feel sand under your feet, and on the south wall you see a sky blue lagoon, with something glistening below the gentle waves. There's a door back inside to your west.")
-    outside.add_item(Item(name = "lagoon", description = "A deep blue lagoon. I could probably swim to the bottom and back.", can_pick_up = False))
+    outside.add_item(Item(
+        name = "lagoon",
+        description = "A deep blue lagoon. I could probably swim to the bottom and back.",
+        can_pick_up = False
+    ))
     hallway.join(outside, "east")
     
     lagoon = Room(description = "You dive in to the lagoon. Thankfully, you hold the world record for holding your breath - you can hang out here for a while.\nThe exit to the lagoon is to the north.")
-    lagoon.add_item(Item(name = "monitor", description = "A nice, new, slight damp monitor. Fortunately, it's waterproof.", get_text="You heave the monitor up out of the sand it's laying in, and drop it in to your pocket."))
+    lagoon.add_item(Item(
+        name = "monitor",
+        description = "A nice, new, slight damp monitor. Fortunately, it's waterproof.",
+        in_room_description = "A nice new monitor sits partially buried in sand.",
+        get_text = "You heave the monitor up out of the sand it's laying in, and drop it in to your pocket."
+    ))
     outside.join(lagoon, "south")
     
-    pc_room = Room(description = "You enter a dark room. A slow hum echos around the room.")
-    pc_room.add_item(Item(name = "pc", description = "An old PC. It's very dusty, but luckily it comes with a strap for carrying it on your back.", get_text="You unplug the PC from the wall and the hum that it was giving off slowly subsides. You lift it on to your back with the handy carrying strap."))
+    pc_room = Room(description = "You enter a dark room.")
+    pc_room.add_item(Item(
+        name = "pc",
+        description = "An old PC. It's very dusty, but luckily it comes with a strap for carrying it on your back.",
+        in_room_description = "A slow hum echos around the room.",
+        get_text="You unplug the PC from the wall and the hum that it was giving off slowly subsides. You lift it on to your back with the handy carrying strap."
+    ))
     hallway.join(pc_room, "south")
     
-    keyboard_room = Room(description = "You open the door and a blinding light shines through the doorway. Your eyes take a second to adjust and you see a keyboard on a podium in the middle of the room.")
-    keyboard_room.add_item(Item(name = "keyboard", description = "A nice keyboard - feels great to type on.", get_text = "You grab the keyboard from the podium and the lights flicker out. You have a strange feeling that you should get out of the room."))
+    keyboard_room = Room(description = "You open the door and a blinding light shines through the doorway. Your eyes take a second to adjust a podium in the middle of the room.")
+    keyboard_room.add_item(Item(
+        name = "keyboard",
+        description = "A nice keyboard - feels great to type on.",
+        in_room_description = "On top of the podium sits a lovely beige keyboard.",
+        get_text = "You grab the keyboard from the podium."
+    ))
     hallway.join(keyboard_room, "west")
     
     def check_success(self):
