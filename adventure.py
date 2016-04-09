@@ -11,6 +11,7 @@ class Room:
             description: A string containing a description of the room.
         """
         self.description = description
+        self.items = {}
         self.north = None
         self.south = None
         self.east = None
@@ -21,6 +22,20 @@ class Room:
         Prints the description of the room to the console.
         """
         print(self.description)
+        
+        if self.items:
+            print("In the room you can see the following items:")
+            for item in self.items:
+                print(item)
+    
+    def add_item(self, item):
+        """
+        Adds an item to the room.
+        
+        Parameters:
+            item: The item to be added.
+        """
+        self.items[item.name] = item
     
     def join(self, joined_room, direction):
         """
@@ -53,6 +68,7 @@ class Player:
             initial_room: The initial Room for the player to start in.
         """
         self.current_room = initial_room
+        self.items = {}
     
     def go(self, direction):
         """
@@ -76,6 +92,34 @@ class Player:
         
         print("You go", direction + ".")
         self.current_room.describe()
+    
+    def get(self, item_name):
+        """
+        Gets an item from the current room and adds it to the player's inventory.
+        
+        Parameters:
+            item_name: The name of the item to be picked up.
+        """
+        if item_name in self.items:
+            print("You've already collected that item.")
+            return
+        
+        try:
+            item = self.current_room.items.pop(item_name)
+            self.items[item_name] = item
+        except KeyError:
+            print("I can't see that item.")
+            return
+        
+        print("You pick up the", item_name + ".")
+            
+    def inventory(self):
+        """
+        Prints the player's inventory to console.
+        """
+        print("You have the following items:")
+        for item in self.items:
+            print(item)
 
 class Item:
     """
@@ -127,3 +171,9 @@ if __name__ == "__main__":
     item = Item(name = "item", description = "A basic item.")
     item.describe()
     print(item.name)
+    
+    room.add_item(item)
+    room.describe()
+    player.get("invalid item")
+    player.get("item")
+    player.inventory()
