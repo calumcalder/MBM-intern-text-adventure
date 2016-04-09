@@ -26,7 +26,7 @@ class Room:
         print(self.description)
         
         if self.items:
-            print("In the room you can see the following items:")
+            print("You can see the following items:")
             for item in self.items:
                 print(item)
     
@@ -118,7 +118,7 @@ class Player:
             self.items[item_name] = item
             print(item.get_text)
         except KeyError:
-            print("I can't see that item.")
+            print("I can't get that item.")
         
             
     def inventory(self):
@@ -174,13 +174,16 @@ class Game:
         Reads in a command and passes it off to the appropriate handler
         """
         command = input(">")
-        param = ""
-        extra = []
+        params = []
         try:
-            command, param, *extra= command.lower().split(" ")
+            command, *params = command.lower().split(" ")
         except ValueError:
-            print("I don't know how to do that.")
+            print("You need to enter a command.")
             return
+        
+        param = ""
+        if params:
+            param = params[0]
         
         if command in ["go", "move"]:
             self.player.go(direction = param)
@@ -206,13 +209,13 @@ class Game:
         elif param in self.player.current_room.items:
             print("You look at the", param + ".")
             self.player.current_room.items[param].describe()
-        elif param == "room":
+        elif param in ["room", "area", ""]:
             self.player.current_room.describe()
         else:
             print("I can't see anything like that.")
     
     def read_commands_forever(self):
-        while not self.check_success():
+        while not self.check_success(self):
             self.read_command()
 
 if DEBUG == True:
@@ -277,24 +280,40 @@ if DEBUG == True:
     room.describe()
 
 if __name__ == "__main__":
-    start_room = Room(description = "A plain white room with a door to the north and a door to the south.")
+    start_room = Room(description = "You are in a plain white room with a door to the north and a door to the south.")
     start_room.add_item(Item(
         name = "note", 
-        description = "A small note. It says:\n \
-            Congratulations, you're on to stage 2 of the Made by Many Technologist Internship application process.\n \
-            We'd like you to make a text adventure game - get coding!\n\n \
-            You think to yourself, 'I could do with a computer to make this on.'",
+        description = "A small note. It says:\nCongratulations, you're on to stage 2 of the Made by Many Technologist Internship application process.\nWe'd like you to make a text adventure game - get coding!\n\nYou think to yourself, 'I could do with a computer to make this on.'",
         get_text = "You pull the note off the wall that it's pinned to."
     ))
     
     desk_room = Room(description = "You come to another white room. There's an empty desk filling up one wall.")
     start_room.join(desk_room, "north")
     
-    hallway = Room(description = "You enter a narrow hallway, with doors to the south, east, and west.")
+    hallway = Room(description = "You enter a narrow hallway, with a door back to the first room to the north, a door at the end of the hallway to the south, and doors on either wall to the east and west.")
     start_room.join(hallway, "south")
     
-    monitor_room = Room(description = "You've come outside, and are surrounded by tall brown cliffs. You feel sand under your feet, and see a sky blue lagoon with a glinting object lying deep under the water.")
+    outside = Room(description = "You've come outside, and are surrounded by tall brown cliffs. You feel sand under your feet, and on the south wall you see a sky blue lagoon, with something glistening below the gentle waves. There's a door back inside to your west.")
+    hallway.join(outside, "east")
     
+    lagoon = Room(description = "You dive in to the lagoon. Thankfully, you hold the world record for holding your breath - you can hang out here for a while.\nThe exit to the lagoon is to the north.")
+    lagoon.add_item(Item(name = "monitor", description = "A nice, new, slight damp monitor. Fortunately, it's waterproof.", get_text="You heave the monitor up out of the sand it's laying in, and drop it in to your pocket."))
+    outside.join(lagoon, "south")
     
-    game = Game(start_room, lambda: False)
+    pc_room = Room(description = "You enter a dark room. A slow hum echos around the room.")
+    pc_room.add_item(Item(name = "pc", description = "An old PC. It's very dusty, but luckily it comes with a strap for carrying it on your back.", get_text="You unplug the PC from the wall and the hum that it was giving off slowly subsides. You lift it on to your back with the handy carrying strap."))
+    hallway.join(pc_room, "south")
+    
+    keyboard_room = Room(description = "You open the door and a blinding light shines through the doorway. Your eyes take a second to adjust and you see a keyboard on a podium in the middle of the room.")
+    keyboard_room.add_item(Item(name = "keyboard", description = "A nice keyboard - feels great to type on.", get_text = "You grab the keyboard from the podium and the lights flicker out. You have a strange feeling that you should get out of the room."))
+    hallway.join(keyboard_room, "west")
+    
+    def check_success(self):
+        """
+        Checks that the player has all required items and is in the correct room.
+        """
+        items_obtained = (item in self.player.items for item in ["pc", "monitor", "keyboard"])
+        return False not in items_obtained and self.player.current_room == desk_room
+    
+    game = Game(start_room, check_success)
     game.read_commands_forever()
