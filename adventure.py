@@ -116,11 +116,10 @@ class Player:
         try:
             item = self.current_room.items.pop(item_name)
             self.items[item_name] = item
+            print(item.get_text)
         except KeyError:
             print("I can't see that item.")
-            return
         
-        print("You pick up the", item_name + ".")
             
     def inventory(self):
         """
@@ -135,16 +134,18 @@ class Item:
     Represents an item in the adventure. Provides functions for interaction with the item.
     """
     
-    def __init__(self, name, description):
+    def __init__(self, name, description, get_text = None):
         """
         Constructor for Item.
         
         Parameters:
             name: A string containing the name of the item.
+            get_text: A string to be printed when the item is collected.
             description: A string describing the item.
         """
         self.description = description
         self.name = name
+        self.get_text = get_text or "You pick up the " + name
     
     def describe(self):
         """
@@ -173,16 +174,24 @@ class Game:
         Reads in a command and passes it off to the appropriate handler
         """
         command = input(">")
-        command, param, *extra= command.lower().split(" ")
+        param = ""
+        extra = []
+        try:
+            command, param, *extra= command.lower().split(" ")
+        except ValueError:
+            print("I don't know how to do that.")
+            return
         
         if command in ["go", "move"]:
             self.player.go(direction = param)
-        if command in ["get", "collect", "grab"]:
+        elif command in ["get", "collect", "grab"]:
             self.player.get(item_name = param)
-        if command in ["describe", "examine", "inspect"]:
+        elif command in ["describe", "examine", "inspect"]:
             self.handle_describe(param)
-        if command in ["inventory", "bag"]:
+        elif command in ["inventory", "bag"]:
             self.player.inventory()
+        else:
+            print("I don't know how to do that.")
     
     def handle_describe(self, param):
         """
@@ -268,8 +277,24 @@ if DEBUG == True:
     room.describe()
 
 if __name__ == "__main__":
-    start_room = Room(description = "You awake in a white room with a door to the north and a door to the south. There is a small note pinned to the wall.")
-    start_room.add_item(Item(name = "note", description = "A small note. It says:\nCongratulations, you're on to stage 2 of the Made by Many Technologist Internship application process.\nWe'd like you to make a text adventure game - get coding!\n\nYou think to yourself, 'I could do with a computer to make this on.'"))
+    start_room = Room(description = "A plain white room with a door to the north and a door to the south.")
+    start_room.add_item(Item(
+        name = "note", 
+        description = "A small note. It says:\n \
+            Congratulations, you're on to stage 2 of the Made by Many Technologist Internship application process.\n \
+            We'd like you to make a text adventure game - get coding!\n\n \
+            You think to yourself, 'I could do with a computer to make this on.'",
+        get_text = "You pull the note off the wall that it's pinned to."
+    ))
+    
+    desk_room = Room(description = "You come to another white room. There's an empty desk filling up one wall.")
+    start_room.join(desk_room, "north")
+    
+    hallway = Room(description = "You enter a narrow hallway, with doors to the south, east, and west.")
+    start_room.join(hallway, "south")
+    
+    monitor_room = Room(description = "You've come outside, and are surrounded by tall brown cliffs. You feel sand under your feet, and see a sky blue lagoon with a glinting object lying deep under the water.")
+    
     
     game = Game(start_room, lambda: False)
     game.read_commands_forever()
