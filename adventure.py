@@ -158,7 +158,7 @@ class Game:
     Singleton class for encapsulating game loop and related functions.
     """
     
-    def __init__(self, initial_room, check_success):
+    def __init__(self, initial_room, check_success, start_message, end_message):
         """
         Contructor for Game.
         
@@ -168,6 +168,8 @@ class Game:
         """
         self.player = Player(initial_room)
         self.check_success = check_success
+        self.start_message = start_message
+        self.end_message = end_message
     
     def read_command(self):
         """
@@ -214,9 +216,20 @@ class Game:
         else:
             print("I can't see anything like that.")
     
-    def read_commands_forever(self):
+    def start(self):
+        """
+        Starts the game, printing out instructions and the initial text. Accepts commands until the game is won.
+        """
+        print("Welcome to the Made by Many Intern Adventure!")
+        print("Commands are as follows. Feel free to try out similar commands:")
+        print("go north/south/east/west - Moves you the direction you specify.")
+        print("get <item> - Collects an item from the room you're in.")
+        print("examine <object> - Examines an item or the room.")
+        print("inventory - Shows you your inventory.")
+        print(self.start_message)
         while not self.check_success(self):
             self.read_command()
+        print(self.end_message)
 
 if DEBUG == True:
     print("---Basic room description---")
@@ -315,5 +328,7 @@ if __name__ == "__main__":
         items_obtained = (item in self.player.items for item in ["pc", "monitor", "keyboard"])
         return False not in items_obtained and self.player.current_room == desk_room
     
-    game = Game(start_room, check_success)
-    game.read_commands_forever()
+    start_message = "You awaken in a white room. You see a note pinned to the wall, and a door to the north and to the south."
+    end_message = "You plug in the computer to a socket you find behind the desk, pull the monitor out of your pocket and place it and the keyboard on the desk.\nPressing the on button, the PC starts up, the words 'Windows 95' flickering on the screen illuminating the room.\nYou're greeted with a familiar black and white prompt, in to which you type 'vim'. You start coding, and your adventure begins."
+    game = Game(start_room, check_success, start_message, end_message)
+    game.start()
