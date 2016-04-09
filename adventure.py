@@ -59,7 +59,7 @@ class Player:
         Moves a player from their current room to another according to the given direction.
         """
         if direction not in ["north", "south", "east", "west"]:
-            print("I don't know how to go", direction)
+            print("I don't know how to go", str(direction) + ".")
             return
         
         if direction == "north" and self.current_room.north is not None:
@@ -74,8 +74,27 @@ class Player:
             print("I can't go that way.")
             return
         
-        print("You go", direction)
+        print("You go", direction + ".")
         self.current_room.describe()
+
+class Item:
+    """
+    Represents an item in the adventure. Provides functions for interaction with the item.
+    """
+    
+    def __init__(self, name, description):
+        """
+        Constructor for Item.
+        
+        Parameters:
+            name: A string containing the name of the item.
+            description: A string describing the item.
+        """
+        self.description = description
+        self.name = name
+    
+    def describe(self):
+        print(self.description)
 
 if __name__ == "__main__":
     room = Room(description = "Hello world")
@@ -104,3 +123,7 @@ if __name__ == "__main__":
     player.go("north")
     player.go("east")
     player.go("south")
+    
+    item = Item(name = "item", description = "A basic item.")
+    item.describe()
+    print(item.name)
