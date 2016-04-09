@@ -144,6 +144,10 @@ class Player:
             print("You've already collected that item.")
             return
         
+        if item_name in self.current_room.objects:
+            print("I can't pick that up.")
+            return
+        
         try:
             item = self.current_room.items.pop(item_name)
             self.items[item_name] = item
