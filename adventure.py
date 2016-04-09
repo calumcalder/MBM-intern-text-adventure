@@ -46,21 +46,33 @@ class Player:
     """
     
     def __init__(self, initial_room):
+        """
+        Constructor of Player.
+
+        Parameters:
+            initial_room: The initial Room for the player to start in.
+        """
         self.current_room = initial_room
     
     def go(self, direction):
+        """
+        Moves a player from their current room to another according to the given direction.
+        """
         if direction not in ["north", "south", "east", "west"]:
             print("I don't know how to go", direction)
             return
         
         if direction == "north" and self.current_room.north is not None:
             self.current_room = self.current_room.north
-        if direction == "south" and self.current_room.south is not None:
+        elif direction == "south" and self.current_room.south is not None:
             self.current_room = self.current_room.south
-        if direction == "east" and self.current_room.east is not None:
+        elif direction == "east" and self.current_room.east is not None:
             self.current_room = self.current_room.east
-        if direction == "west" and self.current_room.west is not None:
+        elif direction == "west" and self.current_room.west is not None:
             self.current_room = self.current_room.west
+        else:
+            print("I can't go that way.")
+            return
         
         print("You go", direction)
         self.current_room.describe()
@@ -90,3 +102,5 @@ if __name__ == "__main__":
     
     player = Player(initial_room = room)
     player.go("north")
+    player.go("east")
+    player.go("south")
