@@ -70,28 +70,7 @@ class Room:
         elif direction == "west":
             self.west = joined_room
             joined_room.east = self
-
-class Object:
-    """
-    Represents and object in the adventure. Can be interacted with, eg. examined, but not picked up.
-    """
-    
-    def __init__(self, name, description):
-        """
-        Constructor for Object.
-        
-        Parameters:
-            description: A description of the object
-        """
-        self.name = name
-        self.description = description
-    
-    def describe(self):
-        """
-        Prints a description of the Object to the console.
-        """
-        print(self.description)
-
+            
 class Player:
     """
     Represents the player in the adventure. Maintains an inventory and current position, as well as providing methods for world interaction.
@@ -144,14 +123,13 @@ class Player:
             print("You've already collected that item.")
             return
         
-        if item_name in self.current_room.objects:
-            print("I can't pick that up.")
-            return
-        
         try:
             item = self.current_room.items.pop(item_name)
-            self.items[item_name] = item
-            print(item.get_text)
+            if item.can_pick_up:
+                self.items[item_name] = item
+                print(item.get_text)
+            else:
+                print("I can't pick that up.")
         except KeyError:
             print("I can't get that item.")
         
@@ -169,7 +147,7 @@ class Item:
     Represents an item in the adventure. Provides functions for interaction with the item.
     """
     
-    def __init__(self, name, description, get_text = None):
+    def __init__(self, name, description, get_text = None, can_pick_up = True):
         """
         Constructor for Item.
         
@@ -177,10 +155,12 @@ class Item:
             name: A string containing the name of the item.
             get_text: A string to be printed when the item is collected.
             description: A string describing the item.
+            can_pick_up: A bool to say whether the Item can be picked up or not.
         """
         self.description = description
         self.name = name
-        self.get_text = get_text or "You pick up the " + name
+        self.get_text = get_text or "You pick up the " + name + "."
+        self.can_pick_up = can_pick_up
     
     def describe(self):
         """
@@ -246,9 +226,6 @@ class Game:
         elif param in self.player.current_room.items:
             print("You look at the", param + ".")
             self.player.current_room.items[param].describe()
-        elif param in self.player.current_room.objects:
-            print("You look at the", param + ".")
-            self.player.current_room.objects[param].describe()
         elif param in ["room", "area", ""]:
             self.player.current_room.describe()
         else:
@@ -341,14 +318,14 @@ if __name__ == "__main__":
     ))
     
     desk_room = Room(description = "You come to another white room. There's an empty desk filling up one wall.")
-    desk_room.add_object(Object(name = "desk", description = "A sturdy wooden desk, with some plug sockets next to it. This could come in handy later."))
+    desk_room.add_item(Item(name = "desk", description = "A sturdy wooden desk, with some plug sockets next to it. This could come in handy later.", can_pick_up = False))
     start_room.join(desk_room, "north")
     
     hallway = Room(description = "You enter a narrow hallway, with a door back to the first room to the north, a door at the end of the hallway to the south, and doors on either wall to the east and west.")
     start_room.join(hallway, "south")
     
     outside = Room(description = "You've come outside, and are surrounded by tall brown cliffs. You feel sand under your feet, and on the south wall you see a sky blue lagoon, with something glistening below the gentle waves. There's a door back inside to your west.")
-    outside.add_object(Object(name = "lagoon", description = "A deep blue lagoon. I could probably swim to the bottom and back."))
+    outside.add_item(Item(name = "lagoon", description = "A deep blue lagoon. I could probably swim to the bottom and back.", can_pick_up = False))
     hallway.join(outside, "east")
     
     lagoon = Room(description = "You dive in to the lagoon. Thankfully, you hold the world record for holding your breath - you can hang out here for a while.\nThe exit to the lagoon is to the north.")
