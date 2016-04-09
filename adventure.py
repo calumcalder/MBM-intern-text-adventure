@@ -61,6 +61,26 @@ class Room:
             self.west = joined_room
             joined_room.east = self
 
+class Object:
+    """
+    Represents and object in the adventure. Can be interacted with, eg. examined, but not picked up.
+    """
+    
+    def __init__(self, description):
+        """
+        Constructor for Object.
+        
+        Parameters:
+            description: A description of the object
+        """
+        self.description = description
+    
+    def describe(self):
+        """
+        Prints a description of the Object to the console.
+        """
+        print(self.description)
+
 class Player:
     """
     Represents the player in the adventure. Maintains an inventory and current position, as well as providing methods for world interaction.
